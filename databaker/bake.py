@@ -213,6 +213,37 @@ def per_file(fn, recipe, csv):
             progress.update(ob_num)
         print
 
+
+def collapse_bag(bag):
+    "used by preview: might be useful elsewhere"
+    # get top_left cell and remove from collection
+
+    # TODO TEST TEST TEST TEST TEST
+    def collapse_one():
+        (left, top) = min(cells)  # TODO reverse? not mandatory
+        (right, bottom) = (left, top)
+        cells.remove((left, top))
+
+        while True:
+            if (right+1, bottom) in cells:
+                right += 1
+                cells.remove((right, bottom))
+            else:
+                break
+
+        while True:
+            for col in range(left, right+1):
+                if (col, bottom+1) not in cells:
+                    return ((left, top), (right, bottom))
+            bottom += 1
+            for col in range(left, right+1):
+                cells.remove((col, bottom))
+
+    cells = set((cell.x, cell.y) for cell in bag)
+    while cells:
+        yield collapse_one()
+
+
 def preview(fn, recipe):
     from xlwings import Workbook, Sheet, Range
     import os
@@ -232,8 +263,13 @@ def preview(fn, recipe):
         obs = recipe.per_tab(tab)
         for i, header in enumerate(tab.headers.values()):
             if not isinstance(header.bag, xypath.Table):
-                for bag in header.bag:
-                    Range(bag._cell.excel_name()).color = (50*i,200*i,250-(50*i))
+                for subrange in list(collapse_bag(header.bag)):
+                    print "subrange", subrange
+                    # reverse and offset by 1
+                    s = ((subrange[0][1]+1, subrange[0][0]+1),
+                         (subrange[1][1]+1, subrange[1][0]+1))
+                    print "s",s
+                    Range(*s).color = (50*i,200*i,250-(50*i))
         exit()
 
 
