@@ -57,6 +57,11 @@ def cell_repr(cell):
     return "<{}{} {!r}>".format(column, cell.y+1, cell.value)
 xypath.xypath._XYCell.__repr__ = cell_repr
 
+def excel_name(cell):
+    column = xypath.contrib.excel.excel_column_label(cell.x+1)
+    return "{}{}".format(column, cell.y+1)
+xypath.xypath._XYCell.excel_name = excel_name
+
 # === TableSet Overrides ==================================
 
 @property
