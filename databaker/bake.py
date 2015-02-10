@@ -215,11 +215,13 @@ def per_file(fn, recipe, csv):
 
 def preview(fn, recipe):
     from xlwings import Workbook, Sheet, Range
+    import os
     import pywintypes
     try:
-        wb = Workbook(fn)
+        full_fn = os.path.abspath(fn)
+        wb = Workbook(full_fn)
     except pywintypes.com_error as e:
-        print "Error loading workbook into Excel: maybe needs absolute name?\n{!r}".format(e)
+        print "Error loading workbook into Excel for preview\n{!r}".format(e)
         exit(60)
 
 def main():
