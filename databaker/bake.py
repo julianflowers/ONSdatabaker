@@ -12,29 +12,29 @@ Options:
 """
 
 import atexit
-import codecs
 import imp
 import re
-import sys
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-
-from docopt import docopt
-import xypath
-import xypath.loader
-from utf8csv import UnicodeWriter
 import os.path
-
-from constants import *
-import overrides        # warning: changes xypath and messytables
-import header
+import string
 import warnings
+import sys
+import codecs
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+from datetime import datetime
+
 import xlutils.copy
 import xlwt
-import richxlrd.richxlrd as richxlrd
-from datetime import datetime
-import string
+from docopt import docopt
 
-from utils import showtime, dim_name, datematch
+import xypath
+import xypath.loader
+
+from databaker.utf8csv import UnicodeWriter
+from databaker.constants import *
+import databaker.overrides as overrides       # warning: changes xypath and messytables
+import databaker.header as header
+import databaker.richxlrd.richxlrd as richxlrd
+from databaker.utils import showtime, dim_name, datematch
 
 __version__ = "0.0.15"
 crash_msg = []
@@ -170,7 +170,7 @@ class TechnicalCSV(object):
             if values[DATAMARKER] == '':
                 values[DATAMARKER] = dm_value
             elif dm_value:
-                logging.warn("datamarker lost: {} on {!r}".format(dm_value, ob))
+                warnings.warn("datamarker lost: {} on {!r}".format(dm_value, ob))
 
         if values[TIMEUNIT] == '' and values[TIME] != '':
             # we've not actually been given a timeunit, but we have a time
@@ -333,7 +333,7 @@ colourlist = {OBS: "lavender",
 def main():
     Opt = Options()
     utils.showtime_enabled = Opt.timing
-    constants.constant_params = Opt.params
+    databaker.constants.constant_params = Opt.params
     atexit.register(onexit)
     recipe = imp.load_source("recipe", Opt.recipe_file)
     for fn in Opt.xls_files:
