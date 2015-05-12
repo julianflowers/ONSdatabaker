@@ -29,11 +29,11 @@ class datematch(unittest.TestCase):
 
 class no_tab_run(unittest.TestCase):
     def test_normal(self):
-        bake.Opt = Options(recipe='bail.py', xls='t.xls')
-        recipe = imp.load_source("recipe", bake.Opt.recipe_file)
+        Opt = Options(recipe='bail.py', xls='t.xls')
+        recipe = imp.load_source("recipe", Opt.recipe_file)
         try:
-            for fn in bake.Opt.xls_files:
-                bake.per_file(fn, recipe)
+            for fn in Opt.xls_files:
+                bake.per_file(fn, recipe, Opt)
         except SystemExit:
             pass
         else:
@@ -43,10 +43,10 @@ class no_tab_run(unittest.TestCase):
 
 class normal_run(unittest.TestCase):
     def test_normal(self):
-        bake.Opt = Options(recipe='t.py', xls='t.xls')
-        recipe = imp.load_source("recipe", bake.Opt.recipe_file)
-        for fn in bake.Opt.xls_files:
-            bake.per_file(fn, recipe)
+        Opt = Options(recipe='t.py', xls='t.xls')
+        recipe = imp.load_source("recipe", Opt.recipe_file)
+        for fn in Opt.xls_files:
+            bake.per_file(fn, recipe, Opt)
         with open("test/t_out.csv") as f:
             raw = list(UnicodeReader(f))
         self.assertEqual(raw[0][0], 'observation')
@@ -71,9 +71,9 @@ class normal_run(unittest.TestCase):
         self.assertEqual(setdata[38+8+8], set(["Sheet1"]))
 
     def test_parse_ob(self):
-        bake.Opt = Options(recipe='obs.py', xls='rich.xls')
-        recipe = imp.load_source("recipe", bake.Opt.recipe_file)
-        bake.Opt.preview_filename = "t_rich.xls"
-        bake.Opt.csv_filename = "t_rich.csv"
-        for fn in bake.Opt.xls_files:
-            bake.per_file(fn, recipe)
+        Opt = Options(recipe='obs.py', xls='rich.xls')
+        recipe = imp.load_source("recipe", Opt.recipe_file)
+        Opt.preview_filename = "t_rich.xls"
+        Opt.csv_filename = "t_rich.csv"
+        for fn in Opt.xls_files:
+            bake.per_file(fn, recipe, Opt)

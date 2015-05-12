@@ -37,7 +37,6 @@ from datetime import datetime
 import string
 
 __version__ = "0.0.15"
-Opt = None
 crash_msg = []
 
 def dim_name(dimension):
@@ -63,8 +62,11 @@ SKIP_AFTER = {OBS: 0,            # 1..2
               STATPOP:11}        # 23/24..36/37
 LAST_METADATA = STATPOP
 
+start = timer()
+last = start
+showtime_enabled = True
 def showtime(msg='unspecified'):
-    if not Opt.timing:
+    if not showtime_enabled:
         return
     global last
     t = timer()
@@ -74,8 +76,6 @@ def showtime(msg='unspecified'):
 def onexit():
     return showtime('exit')
 
-start = timer()
-last = start
 
 def datematch(date, silent=False):
     """match mmm yyyy, mmm-mmm yyyy, yyyy Qn, yyyy"""
@@ -111,8 +111,6 @@ def parse_ob(ob):
     if value is None:
         value = ''
     return value.strip(), datamarker.strip()
-
-
 
 class Options(object):
     def __init__(self):
@@ -259,20 +257,20 @@ class Progress(object):
             sys.stdout.flush()
             self.last_percent = percent
 
-def per_file(spreadsheet, recipe):
+def per_file(spreadsheet, recipe, opt):
     def filenames():
         get_base = lambda filename: os.path.splitext(os.path.basename(filename))[0]
         xls_directory = os.path.dirname(spreadsheet)
         xls_base = get_base(spreadsheet)
-        recipe_base = get_base(Opt.recipe_file)
-        parsed_params = ','.join(Opt.params)
+        recipe_base = get_base(opt.recipe_file)
+        parsed_params = ','.join(opt.params)
 
-        csv_filename = Opt.csv_filename.format(spreadsheet=xls_base,
+        csv_filename = opt.csv_filename.format(spreadsheet=xls_base,
                                                recipe=recipe_base,
                                                params=parsed_params)
         csv_path = os.path.join(xls_directory, csv_filename)
 
-        preview_filename = Opt.preview_filename.format(spreadsheet=xls_base,
+        preview_filename = opt.preview_filename.format(spreadsheet=xls_base,
                                                        recipe=recipe_base,
                                                        params=parsed_params)
         preview_path = os.path.join(xls_directory, preview_filename)
@@ -292,9 +290,9 @@ def per_file(spreadsheet, recipe):
 
     tableset = xypath.loader.table_set(spreadsheet, extension='xls')
     showtime("file {!r} imported".format(spreadsheet))
-    if Opt.preview:
+    if opt.preview:
         writer = xlutils.copy.copy(tableset.workbook)
-    if Opt.csv:
+    if opt.csv:
         csv_file = filenames()['csv']
         csv = TechnicalCSV(csv_file)
     tabs = list(xypath.loader.get_sheets(tableset, recipe.per_file(tableset)))
@@ -310,14 +308,14 @@ def per_file(spreadsheet, recipe):
 
             for seg_id, segment in enumerate(pertab):
                 try:
-                    if Opt.debug:
+                    if opt.debug:
                         print "tab and segment available for interrogation"
                         import pdb; pdb.set_trace()
 
-                    if Opt.preview:
+                    if opt.preview:
                         make_preview()
 
-                    if Opt.csv:
+                    if opt.csv:
                         obs_count = len(segment)
                         progress = Progress(obs_count, 'Tab {}'.format(tab_num + 1))
                         for ob_num, ob in enumerate(segment):  # TODO use const
@@ -340,9 +338,9 @@ def per_file(spreadsheet, recipe):
             raise
 
 
-    if Opt.csv:
+    if opt.csv:
         csv.footer()
-    if Opt.preview:
+    if opt.preview:
         writer.save(filenames()['preview'])
 
 "https://github.com/python-excel/xlwt/blob/master/xlwt/Style.py#L307"
@@ -373,13 +371,14 @@ colourlist = {OBS: "lavender",
               14: "aqua"}
 
 def main():
-    global Opt
     Opt = Options()
+    showtime_enabled = Opt.timing
+    constants.constant_params = Opt.params
     atexit.register(onexit)
     recipe = imp.load_source("recipe", Opt.recipe_file)
     for fn in Opt.xls_files:
         try:
-            per_file(fn, recipe)
+            per_file(fn, recipe, Opt)
         except Exception:
             crash_msg.append("fn: {!r}".format(fn))
             crash_msg.append("recipe: {!r}".format(Opt.recipe_file))

@@ -2,6 +2,7 @@ import databaker.bake as bake
 import unittest
 import imp
 import warnings
+import databaker.constants as constants
 
 warnings.simplefilter("ignore")
 
@@ -19,13 +20,14 @@ class Options(object):
 
 class paramfail(unittest.TestCase):
     def test_failparam(self):
-        bake.Opt = Options(recipe='paramfail.py', xls='t.xls')
-        recipe = imp.load_source("recipe", bake.Opt.recipe_file)
+        Opt = Options(recipe='paramfail.py', xls='t.xls')
+        constants.constant_params = Opt.params
+        recipe = imp.load_source("recipe", Opt.recipe_file)
         try:
-            for fn in bake.Opt.xls_files:
-                bake.per_file(fn, recipe)
+            for fn in Opt.xls_files:
+                bake.per_file(fn, recipe, Opt)
         except Exception as e:
             msg = repr(e)
-            assert "NotEnoughParams" in msg
-            assert 'PARAM(2)' in msg
-            assert "['1999', '2000']" in msg
+            assert "NotEnoughParams" in msg, repr(e)
+            assert 'PARAM(2)' in msg, repr(e)
+            assert "['1999', '2000']" in msg, repr(e)
