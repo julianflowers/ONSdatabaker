@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import databaker.bake as bake
 import unittest
 import warnings
 import imp
 from databaker.utf8csv import UnicodeReader
+from six.moves import zip
 
 warnings.simplefilter("ignore")
 
@@ -37,7 +40,7 @@ class no_tab_run(unittest.TestCase):
         except SystemExit:
             pass
         else:
-            raise Exception, "Should have been System Exit"
+            raise Exception("Should have been System Exit")
 
 
 
@@ -52,9 +55,9 @@ class normal_run(unittest.TestCase):
         self.assertEqual(raw[0][0], 'observation')
         self.assertEqual(raw[-1][0], '*'*9)
         self.assertEqual(raw[-1][1], '9')
-        data = zip(*raw[1:-1])  # transpose
+        data = list(zip(*raw[1:-1]))  # transpose
         setdata = [set(x) for x in data]
-        print list(enumerate(setdata))
+        print(list(enumerate(setdata)))
         self.assertEqual(set([u'', '4']), setdata[0])
         assert '(d)' in setdata[1]
 

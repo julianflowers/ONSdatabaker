@@ -1,6 +1,7 @@
 """
 Patches xypath and messytables.
 """
+from __future__ import absolute_import
 
 import re
 import datetime
@@ -9,6 +10,8 @@ import warnings
 import xypath
 import messytables
 import databaker.utils as utils
+import six
+from six.moves import range
 
 class MatchNotFound(Exception):
     """failed to find match in bag.group"""
@@ -28,7 +31,7 @@ class Dimension(object):
         self.bag = bag
         self.strict = None
         self.string = None
-        if isinstance(param1, basestring):
+        if isinstance(param1, six.string_types):
             self.string = param1
         else:
             self.strict = param1
@@ -100,14 +103,14 @@ def excel_ref(table, reference):
         ((left, top), (right, bottom)) = xypath.contrib.excel.excel_range(reference)
         bag = xypath.Bag(table=table)
         if top is None and bottom is None:
-            for col in xrange(left, right + 1):
+            for col in range(left, right + 1):
                 bag = bag | table.get_at(col, None)
         elif left is None and right is None:
-            for row in xrange(top, bottom + 1):
+            for row in range(top, bottom + 1):
                 bag = bag | table.get_at(None, row)
         else:
-            for row in xrange(top, bottom + 1):
-                for col in xrange(left, right + 1):
+            for row in range(top, bottom + 1):
+                for col in range(left, right + 1):
                     bag = bag | table.get_at(col, row)
         return bag
 xypath.Table.excel_ref = excel_ref
@@ -117,7 +120,7 @@ def append_dimension(table, label, func):
         table.headers = {}
         table.max_header = 0
         table.headernames = [None]
-    if isinstance(label, basestring):
+    if isinstance(label, six.string_types):
         table.max_header += 1
         number = table.max_header
         table.headernames.append(label)
@@ -143,7 +146,7 @@ def is_date(bag):
 xypath.Bag.is_date = is_date
 
 def is_number(bag):
-    return bag.filter(lambda cell: isinstance(cell.value, (int, float, long)))
+    return bag.filter(lambda cell: isinstance(cell.value, (int, float, int)))
 xypath.Bag.is_number = is_number
 
 def group(bag, regex):
@@ -181,8 +184,8 @@ def children(bag):
     outputbag = xypath.Bag(table=bag.table)
     for parent in bag:
         top, bottom, left, right = parent.properties.raw_span(always=True)
-        for row in xrange(top, bottom + 1):
-            for col in xrange(left, right + 1):
+        for row in range(top, bottom + 1):
+            for col in range(left, right + 1):
                 outputbag = outputbag | bag.table.get_at(col, row)
     return outputbag
 xypath.Bag.children = children

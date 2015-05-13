@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from xypath import DOWN, UP, LEFT, RIGHT
 from hamcrest import *
 
