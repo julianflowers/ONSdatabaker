@@ -40,6 +40,7 @@ import databaker.overrides as overrides       # warning: changes xypath and mess
 import databaker.header as header
 import databaker.richxlrd.richxlrd as richxlrd
 from databaker.utils import showtime, dim_name, datematch
+import databaker.utils
 
 __version__ = "0.0.15"
 crash_msg = []
@@ -341,7 +342,7 @@ colourlist = {OBS: "lavender",
 
 def main():
     Opt = Options()
-    utils.showtime_enabled = Opt.timing
+    databaker.utils.showtime_enabled = Opt.timing
     databaker.constants.constant_params = Opt.params
     atexit.register(onexit)
     recipe = imp.load_source("recipe", Opt.recipe_file)
