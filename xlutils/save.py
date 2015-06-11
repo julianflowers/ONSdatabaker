@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2008-2012 Simplistix Ltd
 #
 # This Software is released under the MIT License:
@@ -6,10 +7,11 @@
 
 import os
 from xlutils.filter import process,XLRDReader,StreamWriter
+import six
 
 def save(wb, filename_or_stream):
     "Save the supplied :class:`xlrd.Book` to the supplied stream or filename."
-    if isinstance(filename_or_stream,basestring):
+    if isinstance(filename_or_stream,six.string_types):
         filename = os.path.split(filename_or_stream)[1]
         stream = open(filename_or_stream,'wb')
         close = True

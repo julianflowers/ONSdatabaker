@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2013 Simplistix Ltd
 #
 # This Software is released under the MIT License:
@@ -7,6 +8,7 @@
 from datetime import datetime, time
 from xlrd import open_workbook, XL_CELL_DATE, xldate_as_tuple
 from xlwt.Utils import col_by_name
+from six.moves import range
 
 class Index(object):
     def __init__(self, name):
@@ -65,7 +67,7 @@ class SheetView(object):
                         stop = max(0, max_n + stop_val)
                     elif stop_val > 0:
                         stop = min(max_n, stop_val)
-            setattr(self, name, xrange(start, stop))
+            setattr(self, name, range(start, stop))
 
     def __row(self, rowx):
         for colx in self.cols:

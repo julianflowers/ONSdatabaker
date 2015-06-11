@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Copyright (c) 2008 Simplistix Ltd
 #
 # This Software is released under the MIT License:

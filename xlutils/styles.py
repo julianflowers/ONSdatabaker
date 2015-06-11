@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from six.moves import range
 # Copyright (c) 2008-2012 Simplistix Ltd
 #
 # This Software is released under the MIT License:
@@ -21,13 +23,13 @@ class Styles:
     """
     def __init__(self, book):
         xfi_to_name = {}
-        for name, info in book.style_name_map.items():
+        for name, info in list(book.style_name_map.items()):
             built_in, xfi = info
             # allow multiple 
             assert xfi not in xfi_to_name or not xfi_to_name[xfi]
             xfi_to_name[xfi] = name
         self.cell_styles = {}
-        for xfi in xrange(len(book.xf_list)):
+        for xfi in range(len(book.xf_list)):
             xf = book.xf_list[xfi]
             if xf.is_style:
                 continue

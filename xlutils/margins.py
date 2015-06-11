@@ -1,6 +1,10 @@
+from __future__ import absolute_import
+from __future__ import print_function
 # -*- coding: ascii -*-
 
 import sys, glob, string
+import six
+from six.moves import range
 
 try:
     from xlrd import open_workbook, XL_CELL_EMPTY, XL_CELL_BLANK, XL_CELL_TEXT, XL_CELL_NUMBER, cellname
@@ -37,7 +41,7 @@ def cells_all_junk(cells, is_rubbish=None):
         return False
     return True
 
-def ispunc(c, s=set(unicode(string.punctuation))):
+def ispunc(c, s=set(six.text_type(string.punctuation))):
     """Return True if c is a single punctuation character"""
     return c in s
 
@@ -45,7 +49,7 @@ def number_of_good_rows(sheet, checker=None, nrows=None, ncols=None):
     """Return 1 + the index of the last row with meaningful data in it."""
     if nrows is None: nrows = sheet.nrows
     if ncols is None: ncols = sheet.ncols
-    for rowx in xrange(nrows - 1, -1, -1):
+    for rowx in range(nrows - 1, -1, -1):
         if not cells_all_junk(sheet.row_slice(rowx, 0, ncols), checker):
             return rowx + 1
     return 0
@@ -54,7 +58,7 @@ def number_of_good_cols(sheet, checker=None, nrows=None, ncols=None):
     """Return 1 + the index of the last column with meaningful data in it."""
     if nrows is None: nrows = sheet.nrows
     if ncols is None: ncols = sheet.ncols
-    for colx in xrange(ncols - 1, -1, -1):
+    for colx in range(ncols - 1, -1, -1):
         if not cells_all_junk(sheet.col_slice(colx, 0, nrows), checker):
             return colx+1
     return 0
@@ -66,8 +70,8 @@ def safe_encode(ustr, encoding):
         return repr(ustr)
 
 def check_file(fname, verbose, do_punc=False, fmt_info=0, encoding='ascii', onesheet=''):
-    print
-    print fname
+    print()
+    print(fname)
     if do_punc:
         checker = ispunc
     else:
@@ -82,7 +86,7 @@ def check_file(fname, verbose, do_punc=False, fmt_info=0, encoding='ascii', ones
             book = open_workbook(fname)
     totold = totnew = totnotnull = 0
     if onesheet is None or onesheet == "":
-        shxrange = range(book.nsheets)
+        shxrange = list(range(book.nsheets))
     else:
         try:
             shxrange = [int(onesheet)]
@@ -99,8 +103,8 @@ def check_file(fname, verbose, do_punc=False, fmt_info=0, encoding='ascii', ones
         nnotnull = 0
         sheet_density_pct_s = ''
         if verbose >= 2:
-            colxrange = range(ngoodcols)
-            for rowx in xrange(ngoodrows):
+            colxrange = list(range(ngoodcols))
+            for rowx in range(ngoodrows):
                 rowtypes = sheet.row_types(rowx)
                 for colx in colxrange:
                     if rowtypes[colx] not in null_cell_types:
@@ -111,11 +115,11 @@ def check_file(fname, verbose, do_punc=False, fmt_info=0, encoding='ascii', ones
         if verbose >= 3:
             # which rows have non_empty cells in the right-most column?
             lastcolx = sheet.ncols - 1
-            for rowx in xrange(sheet.nrows):
+            for rowx in range(sheet.nrows):
                 cell = sheet.cell(rowx, lastcolx)
                 if cell.ctype != XL_CELL_EMPTY:
-                    print "%s (%d, %d): type %d, value %r" % (
-                        cellname(rowx, lastcolx), rowx, lastcolx, cell.ctype, cell.value)
+                    print("%s (%d, %d): type %d, value %r" % (
+                        cellname(rowx, lastcolx), rowx, lastcolx, cell.ctype, cell.value))
         if (verbose
             or ngoodrows != sheet.nrows
             or ngoodcols != sheet.ncols
@@ -126,16 +130,16 @@ def check_file(fname, verbose, do_punc=False, fmt_info=0, encoding='ascii', ones
             else:
                 pctwaste = 0.0
             shname_enc = safe_encode(sheet.name, encoding)
-            print "sheet #%2d: RxC %5d x %3d => %5d x %3d; %4.1f%% waste%s (%s)" \
+            print("sheet #%2d: RxC %5d x %3d => %5d x %3d; %4.1f%% waste%s (%s)" \
                 % (shx, sheet.nrows, sheet.ncols,
-                    ngoodrows, ngoodcols, pctwaste, sheet_density_pct_s, shname_enc)
+                    ngoodrows, ngoodcols, pctwaste, sheet_density_pct_s, shname_enc))
         if hasattr(book, 'unload_sheet'):
             book.unload_sheet(shx)
     if totold:
         pctwaste = (1.0 - float(totnew) / totold) * 100.0
     else:
         pctwaste = 0.0
-    print "%d cells => %d cells; %4.1f%% waste" % (totold, totnew, pctwaste)
+    print("%d cells => %d cells; %4.1f%% waste" % (totold, totnew, pctwaste))
                 
 def main():
     import optparse
@@ -177,7 +181,7 @@ def main():
                     options.formatting, encoding, options.onesheet)
             except:
                 e1, e2 = sys.exc_info()[:2]
-                print "*** File %s => %s:%s" % (fname, e1.__name__, e2)
+                print("*** File %s => %s:%s" % (fname, e1.__name__, e2))
     
 if __name__ == "__main__":
     main()
