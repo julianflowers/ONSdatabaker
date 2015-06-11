@@ -23,7 +23,8 @@ import sys
 import codecs
 import six
 from six.moves import range
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+if six.PY2:
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 from datetime import datetime
 
 import xlutils.copy
