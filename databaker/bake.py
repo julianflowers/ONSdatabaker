@@ -91,7 +91,11 @@ class Options(object):
 
 class TechnicalCSV(object):
     def __init__(self, filename):
-        self.filehandle = open(filename, "wb")
+        if six.PY2:
+            mode = "wb"
+        else:
+            mode = "w"
+        self.filehandle = open(filename, mode)
         self.csv_writer = UnicodeWriter(self.filehandle)
         self.row_count = 0
         self.header_dimensions = None
@@ -216,7 +220,7 @@ class Progress(object):
     def update(self, count):
         percent = (((count+1) * 100) // self.max_count)
         if percent != self.last_percent:
-            progress = percent / 5
+            progress = int(percent / 5)
             print(self.msg.format(self.prefix, percent, '='*progress, " "*(20-progress)), end=' ')
             sys.stdout.flush()
             self.last_percent = percent
