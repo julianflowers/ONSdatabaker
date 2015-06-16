@@ -17,9 +17,11 @@ class Options(object):
         self.preview = True
         self.preview_filename = "t_out.xls"
         self.csv_filename = "t_out.csv"
+        self.generic_filename = "t_out.json"
         self.csv = True
         self.debug = False
         self.params = []
+        self.generic = True
 
 class datematch(unittest.TestCase):
     def test_datematch(self):

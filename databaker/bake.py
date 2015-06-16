@@ -9,10 +9,10 @@ Options:
   --preview   Preview selected cells in Excel.
   --nocsv     Don't produce CSV file.
   --debug     Debug Mode
+  --generic   Generic Mode [TODO: --mode [foo]]
 """
 from __future__ import absolute_import
 from __future__ import print_function
-
 import atexit
 import imp
 import re
@@ -26,6 +26,7 @@ from six.moves import range
 if six.PY2:
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 from datetime import datetime
+import json
 
 import xlutils.copy
 import xlwt
@@ -87,11 +88,14 @@ class Options(object):
         self.preview = options['--preview']
         self.preview_filename = "preview-{spreadsheet}-{recipe}-{params}.xls"
         self.csv_filename = "data-{spreadsheet}-{recipe}-{params}.csv"
+        self.generic_filename = "data-{spreadsheet}-{recipe}-{params}.json"
         self.csv = not options['--nocsv']
         self.debug = options['--debug']
         self.params = options['<params>']
+        self.generic = options['--generic']
 
-class TechnicalCSV(object):
+
+class OutputCore(object):
     def __init__(self, filename):
         if six.PY2:
             mode = "wb"
@@ -208,6 +212,44 @@ class TechnicalCSV(object):
             yield ''    # Is Total
             yield ''    # Is Subtotal
 
+class TechnicalCSV(OutputCore):
+    pass
+
+
+class GenericOutput(OutputCore):
+    def __init__(self, filename):
+        if six.PY2:
+            mode = "wb"
+        else:
+            mode = "w"
+        self.filehandle = open(filename, mode)
+        self.csv_writer = GenericWriter(self.filehandle)
+
+    def write_header_if_needed(self, dimensions):
+        return
+
+    def footer(self):
+        self.filehandle.close()
+
+    def handle_observation(self, ob):
+        row = self.get_dimensions_for_ob(ob)
+        self.csv_writer.writerow(row)
+
+    # def get_dimensions_for_ob(self, ob): ## use core
+
+
+
+
+class GenericWriter(object):
+    def __init__(self, filehandle):
+        self.filehandle = filehandle
+
+    def writerow(self, row):
+        self.filehandle.write(json.dumps(list(row)))
+
+
+
+
 
 class Progress(object):
     def __init__(self, max_count, prefix=None, msg="\r{}{:3d}% - [{}{}]"):
@@ -244,7 +286,13 @@ def per_file(spreadsheet, recipe, opt):
                                                        recipe=recipe_base,
                                                        params=parsed_params)
         preview_path = os.path.join(xls_directory, preview_filename)
-        return {'csv': csv_path, 'preview': preview_path}
+
+
+        generic_filename = opt.generic_filename.format(spreadsheet=xls_base,
+                                                       recipe=recipe_base,
+                                                       params=parsed_params)
+        generic_path = os.path.join(xls_directory, generic_filename)
+        return {'csv': csv_path, 'preview': preview_path, 'generic': generic_path}
 
     def make_preview():
         # call for each segment
@@ -263,8 +311,12 @@ def per_file(spreadsheet, recipe, opt):
     if opt.preview:
         writer = xlutils.copy.copy(tableset.workbook)
     if opt.csv:
-        csv_file = filenames()['csv']
-        csv = TechnicalCSV(csv_file)
+        if opt.generic:
+            csv_file = filenames()['generic']
+            csv = GenericOutput(csv_file)
+        else:
+            csv_file = filenames()['csv']
+            csv = TechnicalCSV(csv_file)
     tabs = list(xypath.loader.get_sheets(tableset, recipe.per_file(tableset)))
     if not tabs:
         print("No matching tabs found.")

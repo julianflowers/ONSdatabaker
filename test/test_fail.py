@@ -15,9 +15,11 @@ class Options(object):
         self.preview = True
         self.preview_filename = "t_out.xls"
         self.csv_filename = "t_out.csv"
+        self.generic_filename = "t_out.json"
         self.csv = True
         self.debug = False
         self.params = ["1999","2000"]
+        self.generic = False
 
 class paramfail(unittest.TestCase):
     def test_failparam(self):
