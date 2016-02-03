@@ -10,6 +10,8 @@ import xypath
 import messytables
 import bake
 
+from bisect import bisect_left
+
 unicode = type(u'')
 
 class MatchNotFound(Exception):
@@ -37,6 +39,72 @@ def string_cell_value(cell):
         raise NotImplementedError("Tried to stringify {!r}, a {}".format(cell.value, type(cell.value)))
     return value.strip()
 
+class Receipt(object):
+    def __init__(self, bag, strict, direction):
+        self.bag = bag
+        self.strict = strict
+        self.direction = direction
+        assert abs(direction[0] + direction[1]) == 1
+
+        # the sort order is by Y for DIRECTLY LEFT and CLOSEST ABOVE and X
+        # for the other two; i.e. the 1th dimension for True, [!0, 0] and
+        # False [0, !0]; and 0th for False [!0, 0] and True [0, !0]; i.e.
+        # sort on dimension Y iff XOR(direction, dimension[1])
+        if bool(direction) ^ bool(dimension[1]):
+            self.index_function = lambda cell: cell.y
+            self.non_index_function = lambda cell: cell.x
+        else:
+            self.index_function = lambda cell: cell.x
+            self.non_index_function = lambda cell: cell.y
+
+        self.receipt = []
+        self.receipt_index = []
+        last_position = -1
+        for cell in sorted(bag.unordered_cells(), key=self.index_function):
+            if self.index_function(cell) == last_position:
+                self.receipt[-1].append(cell)
+            else:  # it's a new row
+                self.receipt.append([cell])
+                self.receipt_index.append(self.index_function(cell))  # also add it to the index
+
+    def get_item(self, cell):
+        # note: this doesn't get the lookup details, only the relevant items in the same row or column
+        #       but we can search the row/column for the correct item(s)
+        # bisect_left behaviour: return exact index (of first occurence but there should only BE one)
+        #                        or the index of the NEXT item (which might not exist)
+        position = bisect_left(self.index_function(cell), self.receipt_index)
+        same_position = self.receipt_index[position] == self.index_function(cell)  # TODO can fail if not a valid row/col
+        if self.strict == DIRECTLY:
+            if same_position:
+                # filter bag to only contain relevant cell.
+                for target_cell in self.receipt[position]:
+                    found_cell = None
+                    direction_type = self.direction[0] + self.direction[1]
+                    # if the target_cell is in the right direction
+                    if cmp(self.non_index_function(target_cell), self.non_index_function(cell)) == direction_type:
+                        # and the found cell is more in that direction than the current target_cell
+                        if found_cell == None or cmp(self.non_index_function(found_cell), self.non_index_function(target_cell)) == direction_type:
+                            # update the found cell
+                            found_cell = target_cell
+                return found_cell
+            else:
+                return Bag.from_list([], table=bag.table)  # requires updated XYPath
+        else:
+            # we're in a CLOSEST scenario
+            item = self.receipt[position]  # either the rowcol or the rowcol after
+            if same_position:
+                if self.direction in [ABOVE, LEFT]:
+                    target_position = position -1
+                else:
+                    target_position = position + 1
+            else:
+                if self.direction in [ABOVE, LEFT]:
+                    target_position = position - 1
+                else:
+                    target_position = position
+
+            return Bag.from_list(self.receipt[target_position])
+
 
 class Dimension(object):
 
@@ -54,17 +122,19 @@ class Dimension(object):
             self.join_function = ' '.join
         else:
             self.join_function = join_function
+
         self.bag = bag
-        self.direction = direction  # direction
-        if isinstance(param1, basestring):
+        self.direction = direction
+        if isinstance(param1, basestring):  # Literal 'hardcoded' string dimension name
             self.strict = None
             self.string = param1
             self.subdim = []
-        elif isinstance(param1, bool):
+        elif isinstance(param1, bool):  # A perfectly ordinary dimension e.g. DIRECTLY ABOVE etc.
             self.strict = param1
             self.string = None
             self.subdim = []
-        else:
+            self.receipt = receipt(bag, self.strict, direction) # bag DIRECTLY ABOVE
+        else:  # A list of subdimensions
             assert isinstance(param1[0], Dimension), type(param1[0])
             self.strict = None
             self.string = None
@@ -283,4 +353,3 @@ def by_index(bag, items):
                 return new
     raise xypath.XYPathError("get_nth needed {} items, but bag only contained {}.\n{!r}".format(max(items), len(bag), bag))
 xypath.Bag.by_index = by_index
-
