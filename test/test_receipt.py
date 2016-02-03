@@ -18,19 +18,30 @@ def getcell(s):
     """returns bag containing named cells"""
     return t.filter(lambda x: x.value in s)
 
+def nice_receipt(r):
+    return list(''.join(sorted([i.value for i in row])) for row in r)
+
 b = getcell("AC E GI")
 
 
 class testcase(unittest.TestCase):
     def test_directly_above(self):
-        print b
-        r = Receipt(b, DIRECTLY, ABOVE)
-        h = getcell("H")
-        print r.get_item(h)  # should be E: has been non-deterministic!
-        print "**"
-        print r.index_function
-        print r.non_index_function
-        print r.receipt
-        print r.receipt_index
-        raise SyntaxError
+        bag = getcell("AC E GI")
+        cell = getcell("H")
+        r = Receipt(bag, DIRECTLY, ABOVE)
+        assert r.get_item(cell).value == "E"
+        assert nice_receipt(r.receipt) == ['AG', 'E', 'CI']
+        assert r.receipt_index == [0, 1, 2]
 
+    def test_closest_above(self):
+        bag = getcell("AG")
+        cell = getcell("K")
+        r = Receipt(bag, CLOSEST, ABOVE)
+        assert r.get_item(cell).value == "G"
+        assert nice_receipt(r.receipt) == ['A', 'G']
+        assert r.receipt_index == [0, 2]
+
+    def test_directly_above_failure(self):
+        bag = getcell("AG")
+        cell = getcell("K")
+        #r = Receipt(bag, DIRECTLY, ABOVE) ## nothing to find return something useful
