@@ -14,8 +14,12 @@ t = xypath.Table.from_iterable(
         ['G', 'H', 'I'],
         ['J', 'K', 'L']])
 
-b = t.filter(lambda x: x.value in "AEGCIK")
+#b = t.filter(lambda x: x.value in "AEGCIK")
+def getcell(s):
+    """returns bag containing named cells"""
+    return t.filter(lambda x: x.value in s)
 
+b = getcell("AEGCIK")
 class t(unittest.TestCase):
     def test_foo(self):
         print b
