@@ -22,7 +22,7 @@ b = getcell("AEGCIK")
 
 
 class testcase(unittest.TestCase):
-    def test_foo(self):
+    def test_directly_above(self):
         print b
         r = Receipt(b, DIRECTLY, ABOVE)
         h = getcell("H")
