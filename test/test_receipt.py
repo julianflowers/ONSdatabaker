@@ -14,15 +14,19 @@ t = xypath.Table.from_iterable(
         ['G', 'H', 'I'],
         ['J', 'K', 'L']])
 
-#b = t.filter(lambda x: x.value in "AEGCIK")
 def getcell(s):
     """returns bag containing named cells"""
     return t.filter(lambda x: x.value in s)
 
 b = getcell("AEGCIK")
-class t(unittest.TestCase):
+
+
+class testcase(unittest.TestCase):
     def test_foo(self):
         print b
-        Receipt(b, DIRECTLY, ABOVE)
+        r = Receipt(b, DIRECTLY, ABOVE)
+        h = getcell("H")
+        print r.get_item(h)  # should be E
+        print "**"
         raise SyntaxError
 

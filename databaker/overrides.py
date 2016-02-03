@@ -10,6 +10,7 @@ import messytables
 import bake
 
 from bisect import bisect_left
+from constants import DIRECTLY, CLOSEST
 
 unicode = type(u'')
 
@@ -54,10 +55,10 @@ class Receipt(object):
         # sort on dimension Y iff XOR(strict, direction[1])
         if bool(strict) ^ bool(direction[1]):
             self.index_function = lambda cell: cell.y
-            self.non_index_function = lambda cell: cell.x
+            self.non_index_function = lambda cell2: cell2.x
         else:
             self.index_function = lambda cell: cell.x
-            self.non_index_function = lambda cell: cell.y
+            self.non_index_function = lambda cell2: cell2.y
 
         self.receipt = []
         self.receipt_index = []
@@ -74,7 +75,7 @@ class Receipt(object):
         #       but we can search the row/column for the correct item(s)
         # bisect_left behaviour: return exact index (of first occurence but there should only BE one)
         #                        or the index of the NEXT item (which might not exist)
-        position = bisect_left(self.index_function(cell), self.receipt_index)
+        position = bisect_left(self.receipt_index, self.index_function(cell))
         same_position = self.receipt_index[position] == self.index_function(cell)  # TODO can fail if not a valid row/col
         if self.strict == DIRECTLY:
             if same_position:
