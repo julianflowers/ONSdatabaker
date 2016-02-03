@@ -9,14 +9,16 @@ from databaker.overrides import Receipt
 warnings.simplefilter("ignore")
 
 t = xypath.Table.from_iterable(
-       [['A', 'B', 'C',
-         'D', 'E', 'F',
-         'G', 'H', 'I',
-         'J', 'K', 'L']])
+       [['A', 'B', 'C'],
+        ['D', 'E', 'F'],
+        ['G', 'H', 'I'],
+        ['J', 'K', 'L']])
 
 b = t.filter(lambda x: x.value in "AEGCIK")
 
 class t(unittest.TestCase):
     def test_foo(self):
+        print b
         Receipt(b, DIRECTLY, ABOVE)
+        raise SyntaxError
 
