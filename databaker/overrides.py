@@ -1,7 +1,6 @@
 """
 Patches xypath and messytables.
 """
-
 import re
 import datetime
 import warnings
@@ -39,6 +38,9 @@ def string_cell_value(cell):
         raise NotImplementedError("Tried to stringify {!r}, a {}".format(cell.value, type(cell.value)))
     return value.strip()
 
+class Test(object):
+    pass
+
 class Receipt(object):
     def __init__(self, bag, strict, direction):
         self.bag = bag
@@ -49,8 +51,8 @@ class Receipt(object):
         # the sort order is by Y for DIRECTLY LEFT and CLOSEST ABOVE and X
         # for the other two; i.e. the 1th dimension for True, [!0, 0] and
         # False [0, !0]; and 0th for False [!0, 0] and True [0, !0]; i.e.
-        # sort on dimension Y iff XOR(direction, dimension[1])
-        if bool(direction) ^ bool(dimension[1]):
+        # sort on dimension Y iff XOR(strict, direction[1])
+        if bool(strict) ^ bool(direction[1]):
             self.index_function = lambda cell: cell.y
             self.non_index_function = lambda cell: cell.x
         else:
@@ -60,7 +62,7 @@ class Receipt(object):
         self.receipt = []
         self.receipt_index = []
         last_position = -1
-        for cell in sorted(bag.unordered_cells(), key=self.index_function):
+        for cell in sorted(bag.unordered_cells, key=self.index_function):
             if self.index_function(cell) == last_position:
                 self.receipt[-1].append(cell)
             else:  # it's a new row
