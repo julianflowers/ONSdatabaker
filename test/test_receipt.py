@@ -18,7 +18,7 @@ def getcell(s):
     """returns bag containing named cells"""
     return t.filter(lambda x: x.value in s)
 
-b = getcell("AEGCIK")
+b = getcell("AC E GI")
 
 
 class testcase(unittest.TestCase):
@@ -26,7 +26,11 @@ class testcase(unittest.TestCase):
         print b
         r = Receipt(b, DIRECTLY, ABOVE)
         h = getcell("H")
-        print r.get_item(h)  # should be E
+        print r.get_item(h)  # should be E: has been non-deterministic!
         print "**"
+        print r.index_function
+        print r.non_index_function
+        print r.receipt
+        print r.receipt_index
         raise SyntaxError
 

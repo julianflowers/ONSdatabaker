@@ -39,9 +39,6 @@ def string_cell_value(cell):
         raise NotImplementedError("Tried to stringify {!r}, a {}".format(cell.value, type(cell.value)))
     return value.strip()
 
-class Test(object):
-    pass
-
 class Receipt(object):
     def __init__(self, bag, strict, direction):
         self.bag = bag
@@ -54,21 +51,25 @@ class Receipt(object):
         # False [0, !0]; and 0th for False [!0, 0] and True [0, !0]; i.e.
         # sort on dimension Y iff XOR(strict, direction[1])
         if bool(strict) ^ bool(direction[1]):
+            print "INDEXFUNCTION Y"
             self.index_function = lambda cell: cell.y
-            self.non_index_function = lambda cell2: cell2.x
+            self.non_index_function = lambda cell: cell.x
         else:
+            print "INDEXFUNCTION X"
             self.index_function = lambda cell: cell.x
-            self.non_index_function = lambda cell2: cell2.y
+            self.non_index_function = lambda cell: cell.y
 
         self.receipt = []
         self.receipt_index = []
         last_position = -1
         for cell in sorted(bag.unordered_cells, key=self.index_function):
+            print "**", cell
             if self.index_function(cell) == last_position:
                 self.receipt[-1].append(cell)
             else:  # it's a new row
                 self.receipt.append([cell])
                 self.receipt_index.append(self.index_function(cell))  # also add it to the index
+                last_position = self.index_function(cell)
 
     def get_item(self, cell):
         # note: this doesn't get the lookup details, only the relevant items in the same row or column
