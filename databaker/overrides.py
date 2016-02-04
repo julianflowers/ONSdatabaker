@@ -95,9 +95,9 @@ class Receipt(object):
                         if found_cell == None or cmp(self.non_index_function(found_cell), self.non_index_function(target_cell)) == direction_type:
                             # update the found cell
                             found_cell = target_cell
-                return found_cell  # return a bag??? TODO
+                return found_cell
             else:
-                return xypath.Bag.from_list([], table=self.bag.table)  # requires updated XYPath
+                raise xypath.NoLookupError("No lookup for {!r}".format(cell))
         else:
             # we're in a CLOSEST scenario
             if same_position:
@@ -110,11 +110,13 @@ class Receipt(object):
                     target_position = position - 1
                 else:
                     target_position = position
-            # TODO put this in xypath, this is an ugly hack to create a bag from cells
-            bag = xypath.Bag(self.receipt[target_position][0].table)
-            for cell in self.receipt[target_position][1:]:
-                bag.add(cell)
-            return bag
+
+            candidate_cells = self.receipt[target_position]
+            if len(candidate_cells) == 0:
+                raise xypath.NoLookupError("No lookup for {!r}".format(cell))
+            if len(candidate_cells) > 1:
+                raise xypath.LookupConfusionError("Multiple lookups for {!r}: {!r}".format(cell, candidate_cells))
+            return candidate_cells[0]  # yes there's only one.
 
 class Dimension(object):
 
@@ -143,7 +145,7 @@ class Dimension(object):
             self.strict = param1
             self.string = None
             self.subdim = []
-            self.receipt = receipt(bag, self.strict, direction) # bag DIRECTLY ABOVE
+            self.receipt = Receipt(bag, self.strict, direction) # bag DIRECTLY ABOVE
         else:  # A list of subdimensions
             assert isinstance(param1[0], Dimension), type(param1[0])
             self.strict = None
