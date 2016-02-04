@@ -79,40 +79,44 @@ class Receipt(object):
         #                        or the index of the NEXT item (which might not exist)
         position = bisect_left(self.receipt_index, self.index_function(cell))
         try:
-            same_position = self.receipt_index[position] == self.index_function(cell)  # TODO can fail if not a valid row/col
+            same_position = self.receipt_index[position] == self.index_function(cell)
         except IndexError:
             # it never existed in the first place so it can't be the same
             same_position = False
         if self.strict == DIRECTLY:
-            if same_position:
-                # filter bag to only contain relevant cell.
-                for target_cell in self.receipt[position]:
-                    found_cell = None
-                    direction_type = self.direction[0] + self.direction[1]
-                    # if the target_cell is in the right direction
-                    if cmp(self.non_index_function(target_cell), self.non_index_function(cell)) == direction_type:
-                        # and the found cell is more in that direction than the current target_cell
-                        if found_cell == None or cmp(self.non_index_function(found_cell), self.non_index_function(target_cell)) == direction_type:
-                            # update the found cell
-                            found_cell = target_cell
-                return found_cell
-            else:
+            if not same_position:
                 raise xypath.NoLookupError("No lookup for {!r}".format(cell))
+
+            # filter bag to only contain relevant cell.
+            found_cell = None
+            for target_cell in self.receipt[position]:
+                direction_type = self.direction[0] + self.direction[1]
+                # if the target_cell is in the right direction
+                if cmp(self.non_index_function(cell), self.non_index_function(target_cell)) != direction_type:
+                    # and the found cell is more in that direction than the current target_cell
+                    if found_cell == None or cmp(self.non_index_function(found_cell), self.non_index_function(target_cell)) == direction_type:
+                        # update the found cell
+                        found_cell = target_cell
+            if found_cell is None:
+                raise xypath.NoLookupError("No lookup for {!r}".format(cell))
+            return found_cell
         else:
             # we're in a CLOSEST scenario
             if same_position:
-                if self.direction in [ABOVE, LEFT]:
-                    target_position = position -1
-                else:
-                    target_position = position + 1
+                    target_position = position
             else:
                 if self.direction in [ABOVE, LEFT]:
+                    if position == 0:
+                        # we know that we're not in the same position as the first row
+                        # i.e. we're before it and looking up/left. There's nothing there.
+                        raise xypath.NoLookupError("No lookup for {!r}".format(cell))
                     target_position = position - 1
                 else:
                     target_position = position
 
-            candidate_cells = self.receipt[target_position]
-            if len(candidate_cells) == 0:
+            try:
+                candidate_cells = self.receipt[target_position]
+            except IndexError:
                 raise xypath.NoLookupError("No lookup for {!r}".format(cell))
             if len(candidate_cells) > 1:
                 raise xypath.LookupConfusionError("Multiple lookups for {!r}: {!r}".format(cell, candidate_cells))
@@ -158,7 +162,8 @@ class Dimension(object):
         if self.string is not None:
             return self.string
         if self.strict is not None:
-            return cell.lookup(self.bag, self.direction, self.strict)
+            return self.receipt.get_item(cell)
+            #return cell.lookup(self.bag, self.direction, self.strict)
         if self.subdim != []:
             builder = [string_cell_value(subdim(cell)) for subdim in self.subdim]
             return self.join_function(builder)
