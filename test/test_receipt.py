@@ -5,6 +5,7 @@ import warnings
 from databaker.constants import *
 import xypath
 from databaker.overrides import Receipt
+import random
 
 warnings.simplefilter("ignore")
 
@@ -74,4 +75,22 @@ class testcase(unittest.TestCase):
         cell = getcell("K")
         r = Receipt(bag, DIRECTLY, ABOVE)
         same_as_lookup(r, cell)
-        #r = Receipt(bag, DIRECTLY, ABOVE) ## nothing to find return something useful
+
+    def test_multiple_options_failure(self):
+        bag = getcell("ABC")
+        cell = getcell("E")
+        r = Receipt(bag, CLOSEST, ABOVE)
+        same_as_lookup(r, cell)
+
+    def test_fuzz(self):
+        def fuzz():
+            diceroll = int(random.random()*7) + int(random.random()*6)
+            letters = ''.join(random.sample("ABCDEFGHIJKL", diceroll))
+            letter = random.choice("ABCDEFGHIJKL")
+            bag = getcell(letters)
+            cell = getcell(letter)
+            print letters, letter
+            r = Receipt(bag, CLOSEST, ABOVE)
+            same_as_lookup(r, cell)
+        for i in range(1000):
+            fuzz()
