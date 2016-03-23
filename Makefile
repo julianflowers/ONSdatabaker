@@ -2,9 +2,9 @@ run:    build
 	@docker run \
 	    --rm \
 		-ti \
-	    databaker
+	    ONSdatabaker
 
 build:
-	@docker build -t databaker .
+	@docker build -t ONSdatabaker .
 
 .PHONY: run build
