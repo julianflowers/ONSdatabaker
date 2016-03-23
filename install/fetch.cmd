@@ -3,7 +3,7 @@ if [%3] == [] goto :needmoreargs
 
 echo okfn/messytables@%1
 echo scraperwiki/xypath@%2
-echo scraperwiki/databaker@%3
+echo ONS-OpenData/ONSdatabaker@%3
 pause
 
 pip uninstall -y xypath
@@ -12,7 +12,7 @@ pip uninstall -y databaker
 
 pip install https://github.com/okfn/messytables/archive/%1.zip || goto :error
 pip install https://github.com/scraperwiki/xypath/archive/%2.zip || goto :error
-pip install https://github.com/scraperwiki/databaker/archive/%3.zip || goto :error
+pip install https://github.com/ONS-OpenData/ONSdatabaker/archive/%3.zip || goto :error
 echo Success!
 exit /b 0
 
