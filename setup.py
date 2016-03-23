@@ -6,8 +6,8 @@ Transform Excel spreadsheets
 # See https://pypi.python.org/pypi?%3Aaction=list_classifiers for classifiers
 
 conf = dict(
-    name='databaker',
-    version='1.0.7',
+    name='ONSdatabaker',
+    version='1.0.8',
     description="Excel Output Transformation",
     long_description=long_desc,
     classifiers=[
@@ -16,9 +16,9 @@ conf = dict(
         "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     ],
     keywords='',
-    author='ScraperWiki Ltd',
-    author_email='feedback@scraperwiki.com',
-    url='http://github.com/scraperwiki/databaker',
+    author='Office for National Statistics',
+    author_email='michael.adams@ons.gsi.gov.uk',
+    url='http://github.com/ONS-OpenData/ONSdatabaker',
     license='AGPL',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     namespace_packages=[],
@@ -28,8 +28,8 @@ conf = dict(
     tests_require=[],
     entry_points={
         'console_scripts': [
-            'bake = databaker.bake:main',
-            'sortcsv = databaker.sortcsv:main'
+            'bake = ONSdatabaker.bake:main',
+            'sortcsv = ONSdatabaker.sortcsv:main'
         ]
     })
 
