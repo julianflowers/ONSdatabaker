@@ -17,7 +17,7 @@ echo Success!
 exit /b 0
 
 :needmoreargs
-echo "Usage: fetch <messytables-branch> <xypath-branch> <databaker-branch>"
+echo "Usage: fetch <messytables-branch> <xypath-branch> <ONSdatabaker-branch>"
 exit /b 1
 
 :error
