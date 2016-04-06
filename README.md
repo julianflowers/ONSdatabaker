@@ -1,4 +1,5 @@
-# NOT working yet!
+# NOT working yet :)
+Not installing correctly. On my things to do list.
 
 # ONSdatabaker
 Excel Output Transformation language developed for the UK's Office of National Statistics. Branched from the original "databaker" repository for the continuation of development.
