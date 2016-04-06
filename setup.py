@@ -18,7 +18,7 @@ conf = dict(
     keywords='',
     author='Office for National Statistics',
     author_email='michael.adams@ons.gsi.gov.uk',
-    url='http://github.com/ONS-OpenData/ONSdatabaker',
+    url='http://github.com/ONS-OpenData/ONSdatabaker/',
     license='AGPL',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     namespace_packages=[],
