@@ -5,7 +5,9 @@ Originally developed by ScraperWiki Ltd https://scraperwiki.com/
 
 Original documentation at http://scraperwiki.github.io/eot-docs/. Ongoing documentation to be added to these pages.
 
-# Usage
+Note - pip installer added. ```pip instlall ONSdatabaker```
+
+## Usage
 
 Exactly the same as the original databaker with one exception. In you recipes, replace the line:
 
