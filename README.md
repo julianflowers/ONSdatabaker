@@ -5,7 +5,7 @@ Originally developed by ScraperWiki Ltd https://scraperwiki.com/
 
 Original documentation at http://scraperwiki.github.io/eot-docs/. Ongoing documentation to be added to these pages.
 
-Note - pip installer added. ```pip instlall ONSdatabaker```
+Note - pip installer added. ```pip install ONSdatabaker```
 
 ## Usage
 
