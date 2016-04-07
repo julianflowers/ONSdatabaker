@@ -9,8 +9,8 @@ Original documentation at http://scraperwiki.github.io/eot-docs/. Ongoing docume
 
 Exactly the same as the original databaker with one exception. In you recipes, replace the line:
 
-'''from databaker.constants import *'''
+```from databaker.constants import *```
 
 with
 
-'''from ONSdatabaker.constants import *'''
+```from ONSdatabaker.constants import *```
